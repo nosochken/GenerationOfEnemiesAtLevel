@@ -44,8 +44,6 @@ public class EnemySpawner : MonoBehaviour
 
     private void Start()
     {
-        Debug.Log($"to stop spawning press {_spawnStopKey}");
-
         _coroutines.Add(StartCoroutine(Spawn()));
     }
 
@@ -54,11 +52,7 @@ public class EnemySpawner : MonoBehaviour
         if (Input.GetKeyDown(_spawnStopKey))
         {
             if (_coroutines != null)
-            {
                 StopAllCoroutines();
-
-                Debug.Log("spawn completed");
-            }
         }
     }
 
