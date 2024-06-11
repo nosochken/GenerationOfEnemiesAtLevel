@@ -17,6 +17,8 @@ public class EnemySpawner : MonoBehaviour
     private ObjectPool<Enemy> _pool;
     private List<Coroutine> _coroutines;
 
+    private int _currentSpawnPointNumber;
+
     private void Awake()
     {
         _coroutines = new List<Coroutine>();
@@ -97,8 +99,13 @@ public class EnemySpawner : MonoBehaviour
 
     private SpawnPoint ChooseSpawnPointRandomly()
     {
-        int index = Random.Range(0, _spawnPoints.Count);
+        SpawnPoint spawnPoint = _spawnPoints[_currentSpawnPointNumber];
 
-        return _spawnPoints[index];
+        _currentSpawnPointNumber++;
+
+        if (_currentSpawnPointNumber == _spawnPoints.Count)
+            _currentSpawnPointNumber = 0;
+
+        return spawnPoint;
     }
 }

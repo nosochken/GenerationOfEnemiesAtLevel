@@ -3,11 +3,11 @@ using UnityEngine;
 
 public class JumpingEnemy : Enemy
 {
-    [SerializeField, Min(0)] private float _force = 0.5f;
+    [SerializeField, Min(0)] private float _force = 150f;
 
     private float _height = 1f;
 
-    private void Start()
+    private void OnEnable()
     {
         StartCoroutine(Jump());
     }
@@ -16,7 +16,7 @@ public class JumpingEnemy : Enemy
     {
         while (isActiveAndEnabled)
         {
-            Rigidbody.AddForce(Vector3.up * _force, ForceMode.Impulse);
+            Rigidbody.AddForce(Vector3.up * _force * Time.deltaTime, ForceMode.Impulse);
 
             yield return new WaitUntil(() => transform.position.y == _height);
         }

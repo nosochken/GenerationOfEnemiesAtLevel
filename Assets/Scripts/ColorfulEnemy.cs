@@ -15,7 +15,7 @@ public class ColorfulEnemy : Enemy
         _colorChanger = GetComponent<ColorChanger>();
     }
 
-    private void Start()
+    private void OnEnable()
     {
         StartCoroutine(ChangeColor());
     }

@@ -625,7 +625,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 745edad2a007046469e6b3a1915a1f5a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _waypoints: []
+  _waypoints:
+  - {fileID: 231111601}
+  - {fileID: 1025295908}
+  - {fileID: 2078114396}
   _enemyPrefab: {fileID: 7014642162752838025, guid: 2a3e75eddcc2a48b683bde406fb6b0fe, type: 3}
   _targetPrefab: {fileID: 8623926569040119896, guid: a5fd350118a9d41328e7b076efbca97b, type: 3}
 --- !u!4 &1275749462
@@ -672,7 +675,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 745edad2a007046469e6b3a1915a1f5a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _waypoints: []
+  _waypoints:
+  - {fileID: 231111601}
+  - {fileID: 1025295908}
+  - {fileID: 2078114396}
   _enemyPrefab: {fileID: 1170774970504171814, guid: 27719fc19f8d14de6aba7bb2d35ff95e, type: 3}
   _targetPrefab: {fileID: 8623926569040119896, guid: a5fd350118a9d41328e7b076efbca97b, type: 3}
 --- !u!4 &1310267965
