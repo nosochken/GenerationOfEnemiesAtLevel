@@ -5,7 +5,7 @@ using UnityEngine;
 [RequireComponent(typeof(Rigidbody))]
 public class Enemy : MonoBehaviour
 {
-    [SerializeField, Min(1)] private float _speed = 3.5f;
+    [SerializeField, Min(1)] private float _speed = 3.9f;
 
     private Rigidbody _rigidbody;
     private Vector3 _startPosition;
