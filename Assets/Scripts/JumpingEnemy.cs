@@ -18,7 +18,7 @@ public class JumpingEnemy : Enemy
         {
             Rigidbody.AddForce(Vector3.up * _force * Time.deltaTime, ForceMode.Impulse);
 
-            yield return new WaitUntil(() => transform.position.y == _height);
+            yield return new WaitUntil(() => transform.position.y <= _height);
         }
     }
 }
