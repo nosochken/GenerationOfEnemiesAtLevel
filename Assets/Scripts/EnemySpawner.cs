@@ -3,93 +3,102 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Pool;
 
-[RequireComponent(typeof(DirectionFinder))]
 public class EnemySpawner : MonoBehaviour
 {
-    [SerializeField] private SpawnZone _spawnZone;
-    [SerializeField] private List<SpawnPoint> _spawnPoints;
-    [SerializeField] private Enemy _enemyPrefab;
+	[SerializeField] private SpawnZone _spawnZone;
+	[SerializeField] private List<SpawnPoint> _spawnPoints;
 
-    [SerializeField, Min(1)] private int _poolCapacity = 8;
-    [SerializeField, Min(1)] private int _poolMaxSize = 8;
+	[SerializeField, Min(1)] private int _poolCapacity = 8;
+	[SerializeField, Min(1)] private int _poolMaxSize = 8;
 
-    [SerializeField, Min(0)] private float _delay = 2f;
-    [SerializeField] private KeyCode _spawnStopKey = KeyCode.Space;
+	[SerializeField, Min(0)] private float _delay = 2f;
+	[SerializeField] private KeyCode _spawnStopKey = KeyCode.Space;
 
-    private DirectionFinder _directionFinder;
+	private ObjectPool<Enemy> _pool;
+	private List<Coroutine> _coroutines;
 
-    private ObjectPool<Enemy> _pool;
-    private List<Coroutine> _coroutines;
+	private void Awake()
+	{
+		_coroutines = new List<Coroutine>();
 
-    private void Awake()
+		_pool = new ObjectPool<Enemy>(
+		   createFunc: () => Create(),
+		   actionOnGet: (enemy) => ActOnGet(enemy),
+		   actionOnRelease: (enemy) => enemy.gameObject.SetActive(false),
+		   actionOnDestroy: (enemy) => ActOnDestroy(enemy),
+		   collectionCheck: true,
+		   defaultCapacity: _poolCapacity,
+		   maxSize: _poolMaxSize);
+	}
+
+	private void OnEnable()
+	{
+		_spawnZone.EnemyLeftZone += ReturnToPool;
+	}
+
+	private void Start()
+	{
+		_coroutines.Add(StartCoroutine(Spawn()));
+	}
+
+	private void Update()
+	{
+		if (Input.GetKeyDown(_spawnStopKey))
+		{
+			if (_coroutines != null)
+				StopAllCoroutines();
+		}
+	}
+
+	private void OnDisable()
+	{
+		_spawnZone.EnemyLeftZone -= ReturnToPool;
+	}
+	
+	private Enemy Create()
+	{
+		Enemy enemy = ChooseSpawnPointRandomly().CreateEnemy();
+		enemy.ReachedTarget += ReturnToPool;
+		
+		return enemy;
+	}
+
+	private void ActOnGet(Enemy enemy)
+	{
+		enemy.transform.position = enemy.StartPosition;
+		enemy.gameObject.SetActive(true);
+
+		_coroutines.Add(StartCoroutine(enemy.Move()));
+	}
+	
+	private void ActOnDestroy(Enemy enemy)
     {
-        _coroutines = new List<Coroutine>();
+        enemy.ReachedTarget -= ReturnToPool;
 
-        _pool = new ObjectPool<Enemy>(
-           createFunc: () => Instantiate(_enemyPrefab),
-           actionOnGet: (enemy) => ActOnGet(enemy),
-           actionOnRelease: (enemy) => enemy.gameObject.SetActive(false),
-           actionOnDestroy: (enemy) => Destroy(enemy.gameObject),
-           collectionCheck: true,
-           defaultCapacity: _poolCapacity,
-           maxSize: _poolMaxSize);
-
-        _directionFinder = GetComponent<DirectionFinder>();
+        Destroy(enemy.gameObject);
     }
 
-    private void OnEnable()
-    {
-        _spawnZone.EnemyLeftZone += ReturnToPool;
-    }
+	private IEnumerator Spawn()
+	{
+		var wait = new WaitForSecondsRealtime(_delay);
 
-    private void Start()
-    {
-        _coroutines.Add(StartCoroutine(Spawn()));
-    }
+		while (!Input.GetKey(_spawnStopKey))
+		{
+			yield return wait;
 
-    private void Update()
-    {
-        if (Input.GetKeyDown(_spawnStopKey))
-        {
-            if (_coroutines != null)
-                StopAllCoroutines();
-        }
-    }
+			_pool.Get();
+		}
+	}
 
-    private void OnDisable()
-    {
-        _spawnZone.EnemyLeftZone -= ReturnToPool;
-    }
+	private void ReturnToPool(Enemy enemy)
+	{
+		_pool.Release(enemy);
+	}
 
-    private void ActOnGet(Enemy enemy)
-    {
-        enemy.transform.position = ChooseSpawnPointRandomly().transform.position;
-        enemy.gameObject.SetActive(true);
+	private SpawnPoint ChooseSpawnPointRandomly()
+	{
+		int index = Random.Range(0, _spawnPoints.Count);
 
-        _coroutines.Add(StartCoroutine(enemy.Move(_directionFinder.ChooseDirectionRandomly())));
-    }
-
-    private IEnumerator Spawn()
-    {
-        var wait = new WaitForSecondsRealtime(_delay);
-
-        while (!Input.GetKey(_spawnStopKey))
-        {
-            yield return wait;
-
-            _pool.Get();
-        }
-    }
-
-    private void ReturnToPool(Enemy enemy)
-    {
-        _pool.Release(enemy);
-    }
-
-    private SpawnPoint ChooseSpawnPointRandomly()
-    {
-        int index = Random.Range(0, _spawnPoints.Count);
-
-        return _spawnPoints[index];
-    }
+		return _spawnPoints[index];
+	}
 }
